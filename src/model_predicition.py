@@ -2,33 +2,52 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from keras.models import load_model
+from keras.preprocessing import image
 
-
-# Ask to the model to make predictions from an image given in input
-def predict_image(image_path: str, model_path: str) -> str:
-    """
-    Predict the class of an image
-    :param image_path: The path of the image
-    :return: The class of the image
-    """
-    model = load_model(model_path)
-    img = plt.imread(image_path)
-    img = np.array([img])
-    prediction = model.predict(img)
-    response = ''
-    if prediction[0][0] == 1:
-        response = 'Glioma Tumor'
-    elif prediction[0][1] == 1:
-        response = 'Meningioma Tumor'
-    elif prediction[0][2] == 1:
-        response = 'Pituitary Tumor'
-    elif prediction[0][3] == 1:
-        response = 'No Tumor'
-    return response
-
-glioma_tumor_path = './brain-tumors-256x256/Data/glioma_tumor/P_1.jpg'
+# Paths
+glioma_tumor_path = './brain-tumors-256x256/Data/glioma_tumor/G_1.jpg'
 meningioma_tumor_path = './brain-tumors-256x256/Data/meningioma_tumor/M_1.jpg'
 pituitary_tumor_path = './brain-tumors-256x256/Data/pituitary_tumor/P_1.jpg'
-no_tumor_path = './brain-tumors-256x256/Data/no_tumor/N_1.jpg'
+no_tumor_path = './brain-tumors-256x256/Data/normal/N_1.jpg'
 
-print(predict_image(image_path=meningioma_tumor_path, model_path='./models/brain_tumor_cnn.h5'))
+# Function to load and preprocess a single image
+def load_and_preprocess_image(img_path, target_size=(256, 256)):
+    """
+    Load and preprocess an image.
+    :param img_path: Path to the image.
+    :param target_size: Target size to resize the image.
+    :return: Preprocessed image ready for prediction.
+    """
+    img = image.load_img(img_path, target_size=target_size)
+    img_array = image.img_to_array(img)
+    img_array = np.expand_dims(img_array, axis=0)
+    img_array /= 255.0  # Normalize the image
+    return img_array
+
+# Function to predict the tumor type
+def predict_tumor(model, img_array):
+    """
+    Predict the tumor type.
+    :param model: The trained model.
+    :param img_array: Preprocessed image array.
+    :return: Predicted tumor type.
+    """
+    class_names = ['Glioma', 'Meningioma', 'Pituitary', 'Normal']
+    predictions = model.predict(img_array)
+    predicted_class = np.argmax(predictions, axis=1)
+    return class_names[predicted_class[0]]
+
+# Load the trained model
+model = load_model('./models/brain_tumor_cnn.h5')
+
+# Load and preprocess the image
+img_array = load_and_preprocess_image(pituitary_tumor_path)
+
+# Predict the tumor type
+predicted_tumor = predict_tumor(model, img_array)
+print(f"The predicted tumor type is: {predicted_tumor}")
+
+# Plot the image with the prediction
+plt.imshow(image.load_img(pituitary_tumor_path))
+plt.title(f"Predicted: {predicted_tumor}")
+plt.show()

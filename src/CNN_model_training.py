@@ -1,4 +1,3 @@
-# Imports
 import numpy as np
 import matplotlib.pyplot as plt
 from keras.utils import to_categorical
@@ -10,9 +9,9 @@ from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
 # Load the data
 def load_data(data_dir) -> tuple:
     """
-    Load the data from the data directory
-    :param data_dir: The directory where the data is stored
-    :return: A tuple containing the data and the file names
+    Load the data from the data directory.
+    :param data_dir: The directory where the data is stored.
+    :return: A tuple containing the data and the file names.
     """
     data = []
     file_names = []
@@ -37,14 +36,35 @@ def load_data(data_dir) -> tuple:
     return data, file_names
 
 data, file_names = load_data('brain-tumors-256x256/Data')
+
+# Retrieve the glioma data
 len_glioma_data = len([file for file in file_names if 'G_' in file])
 glioma_data = data[:len_glioma_data]
-x_train_glioma, x_test_glioma, y_train_glioma, y_test_glioma = train_test_split(glioma_data, np.zeros(len_glioma_data), test_size=0.2, random_state=42)
-print(f"X_train_glioma shape: {x_train_glioma.shape}")
-print(f"X_test_glioma shape: {x_test_glioma.shape}")
-print(f"Y_train_glioma shape: {y_train_glioma.shape}")
-print(f"Y_test_glioma shape: {y_test_glioma.shape}")
+y_glioma = np.zeros(len_glioma_data)  # Label 0 for glioma
 
+# Retrieve the meningioma data
+len_meningioma_data = len([file for file in file_names if 'M_' in file])
+meningioma_data = data[len_glioma_data:len_glioma_data + len_meningioma_data]
+y_meningioma = np.ones(len_meningioma_data)  # Label 1 for meningioma
+
+# Retrieve the pituitary data
+len_pituitary_data = len([file for file in file_names if 'P_' in file])
+pituitary_data = data[len_glioma_data + len_meningioma_data:len_glioma_data + len_meningioma_data + len_pituitary_data]
+y_pituitary = np.full(len_pituitary_data, 2)  # Label 2 for pituitary
+
+# Retrieve the normal data
+len_normal_data = len([file for file in file_names if 'N_' in file])
+normal_data = data[len_glioma_data + len_meningioma_data + len_pituitary_data:]
+y_normal = np.full(len_normal_data, 3)  # Label 3 for normal
+
+# Combine the data and labels
+x = np.concatenate((glioma_data, meningioma_data, pituitary_data, normal_data), axis=0)
+y = np.concatenate((y_glioma, y_meningioma, y_pituitary, y_normal), axis=0)
+
+# Split the data into training and testing sets
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
+
+# Initialize the model
 model = Sequential()
 
 # Add the layers to the model
@@ -63,14 +83,16 @@ model.add(Dropout(0.25))
 model.add(Flatten())
 model.add(Dense(128, activation='relu'))
 model.add(Dropout(0.5))
-model.add(Dense(10, activation='softmax'))
+model.add(Dense(4, activation='softmax'))  # Output layer with 4 classes
 
 # Summary of the model
 model.summary()
 
 # Compile the model
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
-history = model.fit(x_train_glioma, y_train_glioma, epochs=10, validation_data=(x_test_glioma, y_test_glioma))
+
+# Train the model
+history = model.fit(x_train, y_train, epochs=50, validation_data=(x_test, y_test))
 
 # Plot the accuracy and loss
 plt.plot(history.history['accuracy'], label='accuracy')
@@ -80,7 +102,8 @@ plt.plot(history.history['val_loss'], label='val_loss')
 plt.legend()
 plt.show()
 
-score = model.evaluate(x_test_glioma, y_test_glioma, verbose=0)
+# Evaluate the model
+score = model.evaluate(x_test, y_test, verbose=0)
 print(f"Test loss: {score[0]}")
 print(f"Test accuracy: {score[1]}")
 
