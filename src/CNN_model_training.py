@@ -37,25 +37,33 @@ def load_data(data_dir) -> tuple:
 
 data, file_names = load_data('brain-tumors-256x256/Data')
 
-# Retrieve the glioma data
+# Debug
+print(data)
+# print(file_names)
+
+# Retrieve all the lengths of different classes to find the lowest length
 len_glioma_data = len([file for file in file_names if 'G_' in file])
-glioma_data = data[:len_glioma_data]
-y_glioma = np.zeros(len_glioma_data)  # Label 0 for glioma
+len_meningioma_data = len([file for file in file_names if 'M_' in file])
+len_pituitary_data = len([file for file in file_names if 'P_' in file])
+len_normal_data = len([file for file in file_names if 'N_' in file])
+
+lowest_len = min(len_glioma_data, len_meningioma_data, len_pituitary_data, len_normal_data)
+
+# Retrieve the glioma data
+glioma_data = data[:lowest_len]
+y_glioma = np.zeros(lowest_len)  # Label 0 for glioma
 
 # Retrieve the meningioma data
-len_meningioma_data = len([file for file in file_names if 'M_' in file])
-meningioma_data = data[len_glioma_data:len_glioma_data + len_meningioma_data]
-y_meningioma = np.ones(len_meningioma_data)  # Label 1 for meningioma
+meningioma_data = data[len_glioma_data:len_glioma_data + lowest_len]
+y_meningioma = np.ones(lowest_len)  # Label 1 for meningioma
 
 # Retrieve the pituitary data
-len_pituitary_data = len([file for file in file_names if 'P_' in file])
-pituitary_data = data[len_glioma_data + len_meningioma_data:len_glioma_data + len_meningioma_data + len_pituitary_data]
-y_pituitary = np.full(len_pituitary_data, 2)  # Label 2 for pituitary
+pituitary_data = data[len_glioma_data + len_meningioma_data:len_glioma_data + len_meningioma_data + lowest_len]
+y_pituitary = np.full(lowest_len, 2)  # Label 2 for pituitary
 
 # Retrieve the normal data
-len_normal_data = len([file for file in file_names if 'N_' in file])
 normal_data = data[len_glioma_data + len_meningioma_data + len_pituitary_data:]
-y_normal = np.full(len_normal_data, 3)  # Label 3 for normal
+y_normal = np.full(lowest_len, 3)  # Label 3 for normal
 
 # Combine the data and labels
 x = np.concatenate((glioma_data, meningioma_data, pituitary_data, normal_data), axis=0)
