@@ -165,3 +165,4 @@ brain-tumors-256x256/
 
 # Models are too large to be uploaded to GitHub
 models/
+*.h5

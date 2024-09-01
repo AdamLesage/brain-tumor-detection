@@ -1,14 +1,13 @@
-# Imports
 import numpy as np
 import matplotlib.pyplot as plt
 from keras.models import load_model
 from keras.preprocessing import image
 
-# Paths
-glioma_tumor_path = './brain-tumors-256x256/Data/glioma_tumor/G_1.jpg'
-meningioma_tumor_path = './brain-tumors-256x256/Data/meningioma_tumor/M_1.jpg'
-pituitary_tumor_path = './brain-tumors-256x256/Data/pituitary_tumor/P_1.jpg'
-no_tumor_path = './brain-tumors-256x256/Data/normal/N_1.jpg'
+# Paths to sample images (you can change these to other images)
+glioma_tumor_path = './brain-tumors-256x256/Data/glioma_tumor/G_9.jpg'
+meningioma_tumor_path = './brain-tumors-256x256/Data/meningioma_tumor/M_9.jpg'
+pituitary_tumor_path = './brain-tumors-256x256/Data/pituitary_tumor/P_378.jpg'
+no_tumor_path = './brain-tumors-256x256/Data/normal/N_47.jpg'
 
 # Function to load and preprocess a single image
 def load_and_preprocess_image(img_path, target_size=(256, 256)):
@@ -21,7 +20,6 @@ def load_and_preprocess_image(img_path, target_size=(256, 256)):
     img = image.load_img(img_path, target_size=target_size)
     img_array = image.img_to_array(img)
     img_array = np.expand_dims(img_array, axis=0)
-    img_array /= 255.0  # Normalize the image
     return img_array
 
 # Function to predict the tumor type
@@ -32,13 +30,16 @@ def predict_tumor(model, img_array):
     :param img_array: Preprocessed image array.
     :return: Predicted tumor type.
     """
-    class_names = ['Glioma', 'Meningioma', 'Pituitary', 'Normal']
+    class_names = ['Glioma', 'Meningioma', 'Normal', 'Pituitary']
     predictions = model.predict(img_array)
+    print(f"Predictions: {predictions}")
     predicted_class = np.argmax(predictions, axis=1)
+    print(f"Predicted class: {predicted_class}")
     return class_names[predicted_class[0]]
 
 # Load the trained model
-model = load_model('./models/brain_tumor_cnn.h5')
+model = load_model('./brain_tumor_cnn.h5')
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
 # Load and preprocess the image
 img_array = load_and_preprocess_image(pituitary_tumor_path)
