@@ -42,13 +42,13 @@ model = load_model('./brain_tumor_cnn.h5')
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
 # Load and preprocess the image
-img_array = load_and_preprocess_image(pituitary_tumor_path)
+img_array = load_and_preprocess_image(meningioma_tumor_path)
 
 # Predict the tumor type
 predicted_tumor = predict_tumor(model, img_array)
 print(f"The predicted tumor type is: {predicted_tumor}")
 
 # Plot the image with the prediction
-plt.imshow(image.load_img(pituitary_tumor_path))
+plt.imshow(image.load_img(meningioma_tumor_path))
 plt.title(f"Predicted: {predicted_tumor}")
 plt.show()

@@ -97,10 +97,18 @@ model.add(Dense(4, activation='softmax'))  # Output layer with 4 classes
 model.summary()
 
 # Compile the model
-model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+model.compile(optimizer='adam', 
+              loss={'class_output': 'sparse_categorical_crossentropy', 'bbox_output': 'mse'},  # mean squared error for bounding box
+              metrics={'class_output': 'accuracy', 'bbox_output': 'mse'})
 
 # Train the model
-history = model.fit(x_train, y_train, epochs=50, validation_data=(x_test, y_test))
+# history = model.fit(x_train, y_train, epochs=50, validation_data=(x_test, y_test))
+
+history = model.fit(x_train, 
+                    {'class_output': y_train, 'bbox_output': x_bbox_train}, 
+                    validation_data=(x_test, {'class_output': y_test, 'bbox_output': x_bbox_test}),
+                    epochs=50)
+
 
 # Plot the accuracy and loss
 plt.plot(history.history['accuracy'], label='accuracy')
@@ -116,4 +124,4 @@ print(f"Test loss: {score[0]}")
 print(f"Test accuracy: {score[1]}")
 
 # Save the model
-model.save('brain_tumor_cnn.h5')
+model.save('models/brain_tumor_model.h5')

@@ -20,3 +20,33 @@ python3 src/install.py
 - `keras-resnet` is a library that provides pre-trained ResNet models.
 
 1. Then enter your kaggle username and your kaggle key to download the dataset.
+
+## Usage
+
+To run the project, execute the following command to train the model:
+
+```shell
+python3 src/CNN_model_training.py
+```
+
+This will create a model and save it in the `models` directory.
+
+To test the model, execute the following command:
+
+```shell
+python3 src/model_prediction.py
+```
+
+This will load the model and test it with a sample image.
+
+
+## Future features
+
+- Implement a feature to detect the tumor location in the image with a bounding box. (YOLO or Faster R-CNN)
+- Implement a web interface to upload images and get the prediction.
+
+## Contact
+
+Mail: [Adam Lesage](mailto:adamles44@gmail.com)
+
+LinkedIn: [Adam Lesage](https://www.linkedin.com/in/adam-lesage-341476266/)
