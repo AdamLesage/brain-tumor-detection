@@ -105,8 +105,8 @@ model.compile(optimizer='adam',
 # history = model.fit(x_train, y_train, epochs=50, validation_data=(x_test, y_test))
 
 history = model.fit(x_train, 
-                    {'class_output': y_train, 'bbox_output': x_bbox_train}, 
-                    validation_data=(x_test, {'class_output': y_test, 'bbox_output': x_bbox_test}),
+                    y_train, 
+                    validation_data=(x_test, y_test),
                     epochs=50)
 
 
