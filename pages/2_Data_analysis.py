@@ -48,7 +48,6 @@ st.subheader('Histogram of Alcohol Content')
 fig, ax = plt.subplots()
 sns.histplot(wine_data['alcohol'], kde=True, ax=ax)
 st.pyplot(fig)
-gs
 
 # Correlation heatmap
 st.subheader('Correlation Heatmap')
