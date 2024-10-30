@@ -1,6 +1,4 @@
 import streamlit as st
-from keras.models import load_model
-from src.model_predicition import predict_tumor, load_and_preprocess_image
 
 # Title
 st.title('Brain tumor detection 🧠')
